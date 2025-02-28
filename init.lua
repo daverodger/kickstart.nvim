@@ -5,15 +5,7 @@
   - :help lua-guide
   - (or HTML version): https://neovim.io/doc/user/lua-guide.html
 
-Kickstart Guide:
-
 If you experience any errors while trying to install kickstart, run `:checkhealth` for more info.
-
--- Set <space> as the leader key
--- See `:help mapleader`
---  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = false
@@ -593,10 +585,11 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        -- clangd = {},
+        clangd = {},
         -- gopls = {},
         -- pyright = {},
-        -- rust_analyzer = {},
+        rust_analyzer = {},
+        jdtls = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -692,6 +685,7 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
+        rust = { 'rustfmt' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
@@ -750,12 +744,13 @@ require('lazy').setup({
             luasnip.lsp_expand(args.body)
           end,
         },
-        completion = { completeopt = 'menu,menuone,noinsert' },
+        completion = {
+          autocomplete = false,
+          completeopt = 'menu,menuone,noinsert',
+        },
 
         -- For an understanding of why these mappings were
         -- chosen, you will need to read `:help ins-completion`
-        --
-        -- No, but seriously. Please read `:help ins-completion`, it is really good!
         mapping = cmp.mapping.preset.insert {
           -- Select the [n]ext item
           ['<C-n>'] = cmp.mapping.select_next_item(),
@@ -837,7 +832,7 @@ require('lazy').setup({
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      vim.cmd.colorscheme 'tokyonight'
     end,
   },
 
@@ -955,6 +950,9 @@ require('lazy').setup({
   },
 })
 
+-- mini.surround disable `s` key for standard usage
+-- vim.keymap.set({ 'n', 'x' }, 's', '<Nop>')
+
 --  FZF keybinds
 vim.o.termguicolors = true
 
@@ -970,3 +968,11 @@ vim.api.nvim_set_keymap('n', '<F1>', [[<Cmd>lua require"fzf-lua".help_tags()<CR>
 require('fzf-lua').utils.info '|<C-\\> buffers|<C-p> files|<C-g> grep|<C-l> live grep|<C-k> builtin|<F1> help|'
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+--
+-- todo keymaps
+vim.keymap.set('n', ']t', function()
+  require('todo-comments').jump_next()
+end, { desc = 'Next todo comment' })
+vim.keymap.set('n', '[t', function()
+  require('todo-comments').jump_prev()
+end, { desc = 'Previous todo comment' })
